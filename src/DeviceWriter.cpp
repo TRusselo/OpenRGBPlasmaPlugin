@@ -24,9 +24,9 @@ void DeviceWriter::setLights(const std::vector<std::shared_ptr<Light>>& newLight
     }
 }
 
-void DeviceWriter::enqueue(const QString& key, const LightState& target)
+void DeviceWriter::enqueue(const QString& key, const LightState& target, quint64 sequence)
 {
-    pending[key.toStdString()] = target;
+    pending[key.toStdString()] = Pending{target, sequence};
     if(!timer.isActive())
     {
         timer.start();
@@ -35,16 +35,16 @@ void DeviceWriter::enqueue(const QString& key, const LightState& target)
 
 void DeviceWriter::flush()
 {
-    std::map<std::string, LightState> batch;
+    std::map<std::string, Pending> batch;
     batch.swap(pending);
-    for(const auto& [key, target] : batch)
+    for(const auto& [key, write] : batch)
     {
         const auto found = lights.find(key);
         if(found == lights.end())
         {
             continue;
         }
-        found->second->apply(target);
-        emit written(QString::fromStdString(key), target);
+        found->second->apply(write.target);
+        emit written(QString::fromStdString(key), write.sequence);
     }
 }

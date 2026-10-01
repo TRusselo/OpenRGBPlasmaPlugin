@@ -18,7 +18,7 @@ class Harness
 {
 public:
     Harness()
-        : engine([this](const std::string& key, const LightState& target) { requests.push_back({key, target}); })
+        : engine([this](const std::string& key, const LightState& target, std::uint64_t sequence) { requests.push_back({key, target, sequence}); })
     {
     }
 
@@ -43,11 +43,11 @@ public:
     {
         const auto pending = requests;
         requests.clear();
-        for(const auto& [key, target] : pending)
+        for(const Request& request : pending)
         {
-            lights[key]->apply(target);
-            engine.onLightChanged(key);
-            engine.onWriteFinished(key, target);
+            lights[request.first]->apply(request.second);
+            engine.onLightChanged(request.first);
+            engine.onWriteFinished(request.first, request.sequence);
         }
     }
 
@@ -57,7 +57,24 @@ public:
         engine.onLightChanged(key);
     }
 
-    std::vector<std::pair<std::string, LightState>> requests;
+    void acknowledge(std::size_t index)
+    {
+        engine.onWriteFinished(requests[index].first, requests[index].sequence);
+    }
+
+    void republish()
+    {
+        publish();
+    }
+
+    struct Request
+    {
+        std::string first;
+        LightState second;
+        std::uint64_t sequence = 0;
+    };
+
+    std::vector<Request> requests;
     std::map<std::string, std::shared_ptr<FakeLight>> lights;
     LightingEngine engine;
 
@@ -180,13 +197,14 @@ void TestLightingEngine::outsideWriteDuringOwnWriteIsDetected()
     h.add("keyboard", directLight({Orange}));
     h.engine.setLevel(50);
     QCOMPARE(int(h.requests.size()), 1);
-    const LightState target = h.requests[0].second;
+    const auto request = h.requests[0];
+    const LightState target = request.second;
     h.requests.clear();
 
     h.lights["keyboard"]->apply(target);
     h.lights["keyboard"]->state = directLight({Red});
     h.engine.onLightChanged("keyboard");
-    h.engine.onWriteFinished("keyboard", target);
+    h.engine.onWriteFinished("keyboard", request.sequence);
 
     QCOMPARE(h.engine.follows("keyboard"), false);
     QCOMPARE(h.engine.base("keyboard"), std::optional<LightState>(directLight({Red})));
@@ -199,18 +217,20 @@ void TestLightingEngine::supersededWriteKeepsWaiting()
     h.engine.setLevel(50);
     QCOMPARE(int(h.requests.size()), 1);
     const LightState first = h.requests[0].second;
+    const std::uint64_t firstSequence = h.requests[0].sequence;
     h.engine.setLevel(20);
     QCOMPARE(int(h.requests.size()), 2);
     const LightState second = h.requests[1].second;
+    const std::uint64_t secondSequence = h.requests[1].sequence;
     h.requests.clear();
 
     h.lights["keyboard"]->apply(first);
-    h.engine.onWriteFinished("keyboard", first);
+    h.engine.onWriteFinished("keyboard", firstSequence);
     h.engine.onLightChanged("keyboard");
     QCOMPARE(h.engine.follows("keyboard"), true);
 
     h.lights["keyboard"]->apply(second);
-    h.engine.onWriteFinished("keyboard", second);
+    h.engine.onWriteFinished("keyboard", secondSequence);
     h.engine.onLightChanged("keyboard");
     QCOMPARE(h.engine.follows("keyboard"), true);
     QCOMPARE(h.engine.base("keyboard"), std::optional<LightState>(directLight({Orange})));
@@ -310,7 +330,7 @@ void TestLightingEngine::removedLightIsForgotten()
     h.add("keyboard", directLight({Orange}));
     h.remove("keyboard");
     h.engine.onLightChanged("keyboard");
-    h.engine.onWriteFinished("keyboard", directLight({Orange}));
+    h.engine.onWriteFinished("keyboard", 1);
     h.engine.setLevel(10);
     QCOMPARE(int(h.requests.size()), 0);
     QVERIFY(!h.engine.base("keyboard").has_value());
@@ -323,5 +343,82 @@ void TestLightingEngine::emptyLightIsHarmless()
     h.engine.setLevel(20);
     h.engine.setAccent(Accent);
     h.engine.onLightChanged("empty");
+    QCOMPARE(int(h.requests.size()), 0);
+}
+
+void TestLightingEngine::staleEchoOfOlderWriteIsIgnored()
+{
+    Harness h;
+    h.add("keyboard", directLight({makeRgb(200, 0, 0)}));
+    h.engine.setLevel(50);
+    QCOMPARE(int(h.requests.size()), 1);
+    const LightState older = h.requests[0].second;
+    h.engine.setLevel(25);
+    QCOMPARE(int(h.requests.size()), 2);
+    h.completeWrites();
+
+    h.lights["keyboard"]->state = older;
+    h.engine.onLightChanged("keyboard");
+
+    QCOMPARE(h.engine.base("keyboard"), std::optional<LightState>(directLight({makeRgb(200, 0, 0)})));
+    h.engine.setLevel(100);
+    h.completeWrites();
+    QCOMPARE(h.lights["keyboard"]->state, directLight({makeRgb(200, 0, 0)}));
+}
+
+void TestLightingEngine::outOfOrderAckIsIgnored()
+{
+    Harness h;
+    h.add("keyboard", directLight({makeRgb(200, 0, 0)}));
+    h.engine.setLevel(50);
+    h.engine.setLevel(60);
+    h.engine.setLevel(50);
+    QCOMPARE(int(h.requests.size()), 3);
+
+    h.lights["keyboard"]->apply(h.requests[0].second);
+    h.lights["keyboard"]->apply(h.requests[1].second);
+    h.acknowledge(0);
+    h.lights["keyboard"]->apply(h.requests[2].second);
+    h.engine.onLightChanged("keyboard");
+    h.acknowledge(1);
+    h.acknowledge(2);
+    h.requests.clear();
+
+    QCOMPARE(h.engine.follows("keyboard"), true);
+    h.engine.setLevel(100);
+    h.completeWrites();
+    QCOMPARE(h.lights["keyboard"]->state, directLight({makeRgb(200, 0, 0)}));
+}
+
+void TestLightingEngine::reshapedLightReadsFreshBase()
+{
+    Harness h;
+    h.add("strip", directLight({makeRgb(200, 0, 0)}));
+    h.engine.setLevel(50);
+    h.completeWrites();
+
+    h.lights["strip"]->state = directLight({makeRgb(10, 20, 30), makeRgb(40, 50, 60)});
+    h.republish();
+
+    QCOMPARE(h.engine.base("strip"), std::optional<LightState>(directLight({makeRgb(10, 20, 30), makeRgb(40, 50, 60)})));
+}
+
+void TestLightingEngine::newLightGetsAccent()
+{
+    Harness h;
+    h.engine.setAccent(Accent);
+    h.add("keyboard", directLight({Orange}));
+    QCOMPARE(int(h.requests.size()), 1);
+    QCOMPARE(h.requests[0].second, directLight({Accent}));
+}
+
+void TestLightingEngine::newLightWithoutAccentTickIsLeftAlone()
+{
+    Harness h;
+    PluginSettings settings;
+    settings.devices["keyboard"] = DeviceOptions{true, false};
+    h.engine.setSettings(settings);
+    h.engine.setAccent(Accent);
+    h.add("keyboard", directLight({Orange}));
     QCOMPARE(int(h.requests.size()), 0);
 }

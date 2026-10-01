@@ -80,7 +80,7 @@ Events:
 3. **Accent change** (accent changed, or accent switched on): every device ticked **Accent color** gets the accent as its `base` color, then is rendered at `level` if ticked **Dim** (`follows := true`) or at full otherwise. The mode is never changed: a device in **Off** stays off.
 4. **Accent switched off**: nothing is written.
 5. **Dim unticked** on a device: render its `base` at full, `follows := false`. **Dim ticked**: `follows := true`, render at `level`.
-6. **Device added** (startup, hotplug, rescan): `base :=` current state; `follows :=` its Dim setting; rendered at `level` (a no-op while `level` is 100).
+6. **Device added** (startup, hotplug, rescan): `base :=` current state, with the accent applied when the accent switch is on and the device is ticked **Accent color**; `follows :=` its Dim setting; rendered at `level`. A known device whose zone layout changed (zone count or LEDs per zone, e.g. a resized ARGB zone) is treated as added, so its base is read fresh.
 7. **Device removed**: state dropped, settings kept.
 
 **Rendering** a device at a level, per zone (using the zone's own active mode if the device supports per-zone modes, else the device mode):
@@ -94,7 +94,7 @@ Events:
 
 Scaling is per channel, rounded. Level 0 renders black (or minimum brightness) but never switches the mode, so the next level restores the exact look.
 
-**Own-write detection**: after each write the engine stores the state it expects the device to report. A callback whose state equals `expected` is ignored. An outside client writing exactly the same values is indistinguishable and harmless.
+**Own-write detection**: each write carries a sequence number and only the newest one's acknowledgement counts. The engine remembers its last 8 targets per device; a callback whose state equals any of them (including late echoes when OpenRGB runs as a client of a server) is ignored. An outside client writing exactly the same values is indistinguishable and harmless.
 
 **Threading**: controller callbacks arrive on OpenRGB threads and are queued to the engine's thread (`Qt::QueuedConnection`) before any state is touched.
 

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstdint>
+#include <deque>
 #include <functional>
 #include <map>
 #include <memory>
@@ -14,7 +16,7 @@
 class LightingEngine
 {
 public:
-    using WriteRequest = std::function<void(const std::string& key, const LightState& target)>;
+    using WriteRequest = std::function<void(const std::string& key, const LightState& target, std::uint64_t sequence)>;
 
     explicit LightingEngine(WriteRequest writeRequest);
 
@@ -23,7 +25,7 @@ public:
     void setLevel(int level);
     void setAccent(std::optional<Rgb> accent);
     void onLightChanged(const std::string& key);
-    void onWriteFinished(const std::string& key, const LightState& applied);
+    void onWriteFinished(const std::string& key, std::uint64_t sequence);
 
     int level() const;
     bool follows(const std::string& key) const;
@@ -36,10 +38,15 @@ private:
         LightState base;
         bool follows = false;
         bool writing = false;
+        std::uint64_t sequence = 0;
         std::optional<LightState> expected;
+        std::deque<LightState> recent;
     };
 
+    Entry newEntry(const std::string& key, const std::shared_ptr<Light>& light) const;
     void render(const std::string& key, Entry& entry);
+    static bool isOwnState(const Entry& entry, const LightState& state);
+    static bool sameShape(const LightState& a, const LightState& b);
     static void adoptOutsideState(Entry& entry, const LightState& state);
 
     WriteRequest requestWrite;
@@ -47,4 +54,5 @@ private:
     PluginSettings settings;
     std::optional<Rgb> accent;
     int currentLevel = 100;
+    std::uint64_t nextSequence = 0;
 };

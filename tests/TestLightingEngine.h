@@ -25,4 +25,9 @@ private slots:
     void tickingAccentAppliesCurrentAccent();
     void removedLightIsForgotten();
     void emptyLightIsHarmless();
+    void staleEchoOfOlderWriteIsIgnored();
+    void outOfOrderAckIsIgnored();
+    void reshapedLightReadsFreshBase();
+    void newLightGetsAccent();
+    void newLightWithoutAccentTickIsLeftAlone();
 };

@@ -4,6 +4,11 @@
 
 #include "Dimming.h"
 
+namespace
+{
+constexpr std::size_t RecentLimit = 8;
+}
+
 LightingEngine::LightingEngine(WriteRequest writeRequest)
     : requestWrite(std::move(writeRequest))
 {
@@ -17,18 +22,14 @@ void LightingEngine::setLights(const std::vector<std::shared_ptr<Light>>& lights
     {
         const std::string key = light->key();
         const auto existing = entries.find(key);
-        if(existing != entries.end())
+        if(existing != entries.end() && sameShape(existing->second.base, light->read()))
         {
             Entry entry = existing->second;
             entry.light = light;
             updated[key] = entry;
             continue;
         }
-        Entry entry;
-        entry.light = light;
-        entry.base = light->read();
-        entry.follows = settings.optionsFor(key).dim;
-        updated[key] = entry;
+        updated[key] = newEntry(key, light);
         added.push_back(key);
     }
     entries = std::move(updated);
@@ -110,14 +111,14 @@ void LightingEngine::onLightChanged(const std::string& key)
         return;
     }
     const LightState state = entry.light->read();
-    if(entry.expected && state == *entry.expected)
+    if(isOwnState(entry, state))
     {
         return;
     }
     adoptOutsideState(entry, state);
 }
 
-void LightingEngine::onWriteFinished(const std::string& key, const LightState& applied)
+void LightingEngine::onWriteFinished(const std::string& key, std::uint64_t sequence)
 {
     const auto found = entries.find(key);
     if(found == entries.end())
@@ -125,13 +126,13 @@ void LightingEngine::onWriteFinished(const std::string& key, const LightState& a
         return;
     }
     Entry& entry = found->second;
-    if(!entry.expected || applied != *entry.expected)
+    if(sequence != entry.sequence)
     {
         return;
     }
     entry.writing = false;
     const LightState state = entry.light->read();
-    if(state != *entry.expected)
+    if(!isOwnState(entry, state))
     {
         adoptOutsideState(entry, state);
     }
@@ -167,7 +168,52 @@ void LightingEngine::render(const std::string& key, Entry& entry)
         return;
     }
     entry.writing = true;
-    requestWrite(key, target);
+    entry.sequence = ++nextSequence;
+    entry.recent.push_back(target);
+    if(entry.recent.size() > RecentLimit)
+    {
+        entry.recent.pop_front();
+    }
+    requestWrite(key, target, entry.sequence);
+}
+
+LightingEngine::Entry LightingEngine::newEntry(const std::string& key, const std::shared_ptr<Light>& light) const
+{
+    const DeviceOptions options = settings.optionsFor(key);
+    Entry entry;
+    entry.light = light;
+    entry.base = light->read();
+    if(accent && options.accent)
+    {
+        entry.base = withAccent(entry.base, *accent);
+    }
+    entry.follows = options.dim;
+    return entry;
+}
+
+bool LightingEngine::isOwnState(const Entry& entry, const LightState& state)
+{
+    if(entry.expected && state == *entry.expected)
+    {
+        return true;
+    }
+    return std::find(entry.recent.begin(), entry.recent.end(), state) != entry.recent.end();
+}
+
+bool LightingEngine::sameShape(const LightState& a, const LightState& b)
+{
+    if(a.zones.size() != b.zones.size())
+    {
+        return false;
+    }
+    for(std::size_t zone = 0; zone < a.zones.size(); zone++)
+    {
+        if(a.zones[zone].leds.size() != b.zones[zone].leds.size())
+        {
+            return false;
+        }
+    }
+    return true;
 }
 
 void LightingEngine::adoptOutsideState(Entry& entry, const LightState& state)
