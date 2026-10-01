@@ -47,6 +47,18 @@ void PlasmaIntegrationPlugin::Load(OpenRGBPluginAPIInterface* plugin_api)
     qRegisterMetaType<LightState>("LightState");
     settings = PluginSettings::fromJson(api->GetSettings(SettingsKey));
 
+    tab = new SettingsTab();
+    backlight = new UledsBacklight();
+    backlight->setParent(this);
+    if(backlight->ledExists())
+    {
+        tab->setPassive(true);
+        tab->setStatusLines({QStringLiteral("Another OpenRGB instance owns the backlight."),
+                             QStringLiteral("This window leaves the lights alone; use the OpenRGB window that started first.")});
+        api->LogEntry(__FILE__, __LINE__, LL_INFO, "[PlasmaIntegration] another instance owns the backlight, staying passive");
+        return;
+    }
+
     writer = new DeviceWriter();
     writer->moveToThread(&writerThread);
     connect(&writerThread, &QThread::finished, writer, &QObject::deleteLater);
@@ -64,11 +76,8 @@ void PlasmaIntegrationPlugin::Load(OpenRGBPluginAPIInterface* plugin_api)
         }
     });
 
-    tab = new SettingsTab();
     setup = new SystemSetup(this);
     probe = new PowerDevilProbe(this);
-    backlight = new UledsBacklight();
-    backlight->setParent(this);
     accentSource = new AccentColorSource(AccentColorSource::defaultPath(), this);
 
     connect(backlight, &UledsBacklight::levelChanged, this, [this](int level) { engine->setLevel(level); });

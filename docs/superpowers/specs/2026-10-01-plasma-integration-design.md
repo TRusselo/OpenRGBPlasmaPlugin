@@ -112,6 +112,8 @@ udevadm trigger --name-match=uleds
 
 Then the plugin retries opening `/dev/uleds`. If `pkexec` is missing or the prompt is cancelled, the tab shows these commands to run by hand. A future AUR package can install the same two files under `/usr/lib`, making the button unnecessary.
 
+If the backlight LED already exists when the plugin loads, another OpenRGB instance owns it (e.g. a second window started as a client of the first). That instance stays **passive**: no device callbacks, no accent, no writes, tab controls disabled, with a status line saying so.
+
 Status line states: **Ready**, **Needs setup**, **This kernel has no uleds** (brightness disabled, accent still works), **Another OpenRGB instance owns the backlight**, **Accent color unavailable (not running in Plasma)**, **PowerDevil has not picked up the backlight** (with the restart button).
 
 ## 8. Testing

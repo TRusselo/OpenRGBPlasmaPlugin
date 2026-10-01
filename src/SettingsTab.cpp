@@ -114,6 +114,17 @@ void SettingsTab::setDevices(const std::vector<DeviceRow>& rows, const PluginSet
     updating = false;
 }
 
+void SettingsTab::setPassive(bool passive)
+{
+    accentBox->setEnabled(!passive);
+    table->setEnabled(!passive);
+    if(passive)
+    {
+        setupButton->hide();
+        restartButton->hide();
+    }
+}
+
 void SettingsTab::showEvent(QShowEvent* event)
 {
     QWidget::showEvent(event);

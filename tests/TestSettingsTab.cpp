@@ -110,3 +110,23 @@ void TestSettingsTab::statusAndButtons()
     tab.setManualCommands(QString());
     QVERIFY(manual->isHidden());
 }
+
+void TestSettingsTab::passiveDisablesControls()
+{
+    SettingsTab tab;
+    tab.setDevices(rows(), PluginSettings());
+    tab.setSetupVisible(true);
+    tab.setRestartVisible(true);
+
+    tab.setPassive(true);
+
+    auto* box = tab.findChild<QCheckBox*>(QStringLiteral("accentCheck"));
+    auto* table = tab.findChild<QTableWidget*>(QStringLiteral("deviceTable"));
+    auto* setup = tab.findChild<QPushButton*>(QStringLiteral("setupButton"));
+    auto* restart = tab.findChild<QPushButton*>(QStringLiteral("restartButton"));
+    QVERIFY(box && table && setup && restart);
+    QVERIFY(!box->isEnabled());
+    QVERIFY(!table->isEnabled());
+    QVERIFY(setup->isHidden());
+    QVERIFY(restart->isHidden());
+}

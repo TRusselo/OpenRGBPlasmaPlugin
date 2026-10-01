@@ -32,6 +32,7 @@ public:
     void setRestartVisible(bool visible);
     void setAccentEnabled(bool enabled);
     void setDevices(const std::vector<DeviceRow>& rows, const PluginSettings& settings);
+    void setPassive(bool passive);
 
 signals:
     void setupRequested();

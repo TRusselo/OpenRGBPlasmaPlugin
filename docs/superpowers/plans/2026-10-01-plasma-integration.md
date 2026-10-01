@@ -4736,6 +4736,14 @@ Expected: Goliathus `0,128,255`; Goliathus Extended stays `mode=Off`; `ConfigCha
 
 The person unticks **Dim** for "Razer Blackwidow Elite", moves the Plasma slider down to about 20%, and confirms the keyboard stays bright while the mats dim. Then re-ticks it and confirms the keyboard dims. Then waits for the screen to dim on idle (or sets a 1-minute dim timeout in Power Management settings) and confirms the lights go dark and return on mouse move.
 
+- [ ] **Step 8b: Review scenarios (added after the final review)**
+
+With the dev OpenRGB still running and the slider at about 40%:
+1. Click **Rescan Devices** in OpenRGB with the accent switch on: every light comes back dimmed and in the accent color.
+2. Unplug and replug one USB RGB device: it reappears in the tab and takes the current level.
+3. Start a second OpenRGB window (`~/git/OpenRGB-1.0/build/openrgb --config ~/.config/OpenRGB-plasma-dev`): its Plasma Integration tab says another instance owns the backlight and its controls are disabled; changing the accent color does not make the lights jump.
+4. Drag the slider quickly up and down for a few seconds, then set it to 100: every light returns to its full color.
+
 - [ ] **Step 9: Shutdown and restore**
 
 ```bash

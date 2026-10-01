@@ -12,4 +12,5 @@ private slots:
     void fillingRowsEmitsNothing();
     void accentCheckboxEmits();
     void statusAndButtons();
+    void passiveDisablesControls();
 };
