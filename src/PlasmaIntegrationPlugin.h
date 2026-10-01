@@ -1,8 +1,24 @@
 #pragma once
 
+#include <map>
+#include <memory>
+#include <string>
+#include <vector>
+
 #include <QObject>
+#include <QThread>
 
 #include "OpenRGBPluginInterface.h"
+#include "PluginSettings.h"
+
+class AccentColorSource;
+class DeviceWriter;
+class LightingEngine;
+class OpenRGBLight;
+class PowerDevilProbe;
+class SettingsTab;
+class SystemSetup;
+class UledsBacklight;
 
 class PlasmaIntegrationPlugin : public QObject, public OpenRGBPluginInterface
 {
@@ -11,7 +27,8 @@ class PlasmaIntegrationPlugin : public QObject, public OpenRGBPluginInterface
     Q_INTERFACES(OpenRGBPluginInterface)
 
 public:
-    ~PlasmaIntegrationPlugin() override = default;
+    PlasmaIntegrationPlugin();
+    ~PlasmaIntegrationPlugin() override;
 
     OpenRGBPluginInfo GetPluginInfo() override;
     unsigned int GetPluginAPIVersion() override;
@@ -28,6 +45,26 @@ public:
     void SettingsManagerUpdated(unsigned int update_reason) override;
 
 private:
+    static void controllerCallback(void* plugin, unsigned int reason, void* controller);
+
+    void refreshLights();
+    void onControllerChanged(void* controller);
+    void openBacklight();
+    void checkPowerDevilSoon();
+    void updateStatus();
+    void saveSettings();
+    void applyAccent();
+
     OpenRGBPluginAPIInterface* api = nullptr;
-    QWidget* tab = nullptr;
+    PluginSettings settings;
+    std::unique_ptr<LightingEngine> engine;
+    QThread writerThread;
+    DeviceWriter* writer = nullptr;
+    UledsBacklight* backlight = nullptr;
+    AccentColorSource* accentSource = nullptr;
+    SystemSetup* setup = nullptr;
+    PowerDevilProbe* probe = nullptr;
+    SettingsTab* tab = nullptr;
+    std::vector<std::shared_ptr<OpenRGBLight>> lights;
+    std::map<void*, std::string> keysByController;
 };
