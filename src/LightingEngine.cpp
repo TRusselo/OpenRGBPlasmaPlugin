@@ -28,7 +28,29 @@ void LightingEngine::setLights(const std::vector<std::shared_ptr<Light>>& lights
             updated[key] = entry;
             continue;
         }
-        updated[key] = newEntry(key, light);
+        const auto remembered = departed.find(key);
+        if(remembered != departed.end() && sameShape(remembered->second.base, light->read()))
+        {
+            Entry entry = remembered->second;
+            entry.light = light;
+            updated[key] = entry;
+        }
+        else
+        {
+            updated[key] = newEntry(key, light);
+        }
+        departed.erase(key);
+    }
+    for(auto& [key, entry] : entries)
+    {
+        if(updated.find(key) == updated.end())
+        {
+            entry.light.reset();
+            entry.writing = false;
+            entry.expected.reset();
+            entry.recent.clear();
+            departed[key] = entry;
+        }
     }
     entries = std::move(updated);
     fillUnlit();
@@ -71,6 +93,13 @@ void LightingEngine::setSettings(const PluginSettings& newSettings)
 void LightingEngine::setLevel(int level)
 {
     currentLevel = std::clamp(level, 0, 100);
+    for(auto& [key, entry] : departed)
+    {
+        if(settings.optionsFor(key).dim)
+        {
+            entry.follows = true;
+        }
+    }
     fillUnlit();
     for(auto& [key, entry] : entries)
     {
@@ -88,6 +117,16 @@ void LightingEngine::setAccent(std::optional<Rgb> newAccent)
     if(!accent)
     {
         return;
+    }
+    for(auto& [key, entry] : departed)
+    {
+        const DeviceOptions options = settings.optionsFor(key);
+        if(options.accent)
+        {
+            entry.base = withAccent(entry.base, *accent);
+            entry.unlit = false;
+            entry.follows = options.dim;
+        }
     }
     for(auto& [key, entry] : entries)
     {

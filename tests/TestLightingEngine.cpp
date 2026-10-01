@@ -108,6 +108,8 @@ const Rgb Orange = makeRgb(200, 100, 0);
 const Rgb Red = makeRgb(255, 0, 0);
 const Rgb Accent = makeRgb(61, 174, 233);
 const Rgb Black = makeRgb(0, 0, 0);
+const Rgb Green = makeRgb(0, 255, 0);
+const Rgb Blue = makeRgb(0, 0, 255);
 }
 
 void TestLightingEngine::startupAtFullLevelWritesNothing()
@@ -546,4 +548,70 @@ void TestLightingEngine::rescannedLightGetsStateBack()
     const std::optional<LightState> keyboard = h.lastRequestFor("keyboard");
     QVERIFY(keyboard.has_value());
     QCOMPARE(*keyboard, directLight({makeRgb(100, 50, 0)}));
+}
+
+void TestLightingEngine::emptiedListRestoresRememberedState()
+{
+    Harness h;
+    h.add("keyboard", directLight({Orange}));
+    h.add("mat", directLight({Red}));
+    const LightState off = lightWithMode(offMode(1), {Red});
+    h.outsideChange("mat", off);
+    h.engine.setLevel(50);
+    h.completeWrites();
+    h.remove("keyboard");
+    h.remove("mat");
+
+    h.add("keyboard", directLight({Black}));
+    h.add("mat", directLight({Black}));
+
+    const std::optional<LightState> keyboard = h.lastRequestFor("keyboard");
+    const std::optional<LightState> mat = h.lastRequestFor("mat");
+    QVERIFY(keyboard.has_value() && mat.has_value());
+    QCOMPARE(*keyboard, directLight({makeRgb(100, 50, 0)}));
+    QCOMPARE(*mat, off);
+}
+
+void TestLightingEngine::replugRestoresOwnColor()
+{
+    Harness h;
+    h.add("keyboard", directLight({Red}));
+    h.add("dock", directLight({Green}));
+    h.remove("dock");
+
+    h.add("dock", directLight({Black}));
+
+    const std::optional<LightState> dock = h.lastRequestFor("dock");
+    QVERIFY(dock.has_value());
+    QCOMPARE(*dock, directLight({Green}));
+}
+
+void TestLightingEngine::departedLightFollowsLevelChange()
+{
+    Harness h;
+    h.add("keyboard", directLight({Red}));
+    h.add("mat", directLight({Red}));
+    h.outsideChange("mat", directLight({Blue}));
+    h.remove("mat");
+    h.engine.setLevel(50);
+
+    h.add("mat", directLight({Black}));
+
+    const std::optional<LightState> mat = h.lastRequestFor("mat");
+    QVERIFY(mat.has_value());
+    QCOMPARE(*mat, directLight({makeRgb(0, 0, 128)}));
+}
+
+void TestLightingEngine::departedLightGetsAccentChange()
+{
+    Harness h;
+    h.add("mat", directLight({Red}));
+    h.remove("mat");
+    h.engine.setAccent(Accent);
+
+    h.add("mat", directLight({Black}));
+
+    const std::optional<LightState> mat = h.lastRequestFor("mat");
+    QVERIFY(mat.has_value());
+    QCOMPARE(*mat, directLight({Accent}));
 }

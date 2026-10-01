@@ -53,6 +53,7 @@ private:
 
     WriteRequest requestWrite;
     std::map<std::string, Entry> entries;
+    std::map<std::string, Entry> departed;
     PluginSettings settings;
     std::optional<Rgb> accent;
     int currentLevel = 100;

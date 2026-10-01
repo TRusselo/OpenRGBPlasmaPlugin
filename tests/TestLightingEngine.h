@@ -38,4 +38,8 @@ private slots:
     void offModeLightIsLeftAlone();
     void accentClearsUnlit();
     void rescannedLightGetsStateBack();
+    void emptiedListRestoresRememberedState();
+    void replugRestoresOwnColor();
+    void departedLightFollowsLevelChange();
+    void departedLightGetsAccentChange();
 };
