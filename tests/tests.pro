@@ -6,6 +6,8 @@ CONFIG += console
 CONFIG -= app_bundle
 QT += core gui widgets dbus testlib
 
+INCLUDEPATH += $$PWD/../OpenRGB $$PWD/../OpenRGB/RGBController
+
 DEFINES += PLUGIN_LIBRARY_PATH=\\\"$$OUT_PWD/../src/libOpenRGBPlasmaPlugin.so\\\"
 
 HEADERS += \
@@ -35,7 +37,11 @@ HEADERS += \
     ../src/PowerDevilProbe.h \
     ../src/StatusText.h \
     TestSettingsTab.h \
-    ../src/SettingsTab.h
+    ../src/SettingsTab.h \
+    StubController.h \
+    FakeController.h \
+    TestOpenRGBLight.h \
+    ../src/OpenRGBLight.h
 
 SOURCES += \
     main.cpp \
@@ -60,4 +66,6 @@ SOURCES += \
     ../src/PowerDevilProbe.cpp \
     ../src/StatusText.cpp \
     TestSettingsTab.cpp \
-    ../src/SettingsTab.cpp
+    ../src/SettingsTab.cpp \
+    TestOpenRGBLight.cpp \
+    ../src/OpenRGBLight.cpp

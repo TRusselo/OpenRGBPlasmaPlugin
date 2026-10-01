@@ -16,6 +16,7 @@
 #include "TestSystemSetup.h"
 #include "TestStatusText.h"
 #include "TestSettingsTab.h"
+#include "TestOpenRGBLight.h"
 
 int main(int argc, char** argv)
 {
@@ -43,6 +44,7 @@ int main(int argc, char** argv)
     tests.emplace_back(new TestSystemSetup);
     tests.emplace_back(new TestStatusText);
     tests.emplace_back(new TestSettingsTab);
+    tests.emplace_back(new TestOpenRGBLight);
 
     int status = 0;
     for(const std::unique_ptr<QObject>& test : tests)

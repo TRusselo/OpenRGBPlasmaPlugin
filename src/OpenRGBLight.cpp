@@ -85,7 +85,7 @@ LightState OpenRGBLight::read() const
         ZoneState zoneState;
         zoneState.mode = readZoneMode(rgb, zone, rgb->GetZoneActiveMode(zone));
         const unsigned int start = rgb->GetZoneStartIndex(zone);
-        const unsigned int count = rgb->GetZoneLEDsCount(zone);
+        const unsigned int count = rgb->GetLEDsInZone(zone);
         for(unsigned int led = 0; led < count; led++)
         {
             zoneState.leds.push_back(rgb->GetColor(start + led));
