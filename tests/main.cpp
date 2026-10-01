@@ -4,16 +4,19 @@
 #include <QApplication>
 #include <QTest>
 
+#include "LightMetaType.h"
 #include "TestPluginMetadata.h"
 #include "TestDimming.h"
 #include "TestDeviceKey.h"
 #include "TestPluginSettings.h"
 #include "TestLightingEngine.h"
+#include "TestDeviceWriter.h"
 
 int main(int argc, char** argv)
 {
     qputenv("QT_QPA_PLATFORM", "offscreen");
     QApplication app(argc, argv);
+    qRegisterMetaType<LightState>("LightState");
 
     std::vector<char*> args(argv, argv + argc);
     QString filter;
@@ -29,6 +32,7 @@ int main(int argc, char** argv)
     tests.emplace_back(new TestDeviceKey);
     tests.emplace_back(new TestPluginSettings);
     tests.emplace_back(new TestLightingEngine);
+    tests.emplace_back(new TestDeviceWriter);
 
     int status = 0;
     for(const std::unique_ptr<QObject>& test : tests)

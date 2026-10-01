@@ -24,14 +24,17 @@ HEADERS += \
     DeviceKey.h \
     PluginSettings.h \
     Light.h \
-    LightingEngine.h
+    LightingEngine.h \
+    LightMetaType.h \
+    DeviceWriter.h
 
 SOURCES += \
     PlasmaIntegrationPlugin.cpp \
     Dimming.cpp \
     DeviceKey.cpp \
     PluginSettings.cpp \
-    LightingEngine.cpp
+    LightingEngine.cpp \
+    DeviceWriter.cpp
 
 DISTFILES += \
     PlasmaIntegrationPlugin.json

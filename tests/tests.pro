@@ -21,7 +21,10 @@ HEADERS += \
     FakeLight.h \
     TestLightingEngine.h \
     ../src/Light.h \
-    ../src/LightingEngine.h
+    ../src/LightingEngine.h \
+    TestDeviceWriter.h \
+    ../src/LightMetaType.h \
+    ../src/DeviceWriter.h
 
 SOURCES += \
     main.cpp \
@@ -33,4 +36,6 @@ SOURCES += \
     ../src/DeviceKey.cpp \
     ../src/PluginSettings.cpp \
     TestLightingEngine.cpp \
-    ../src/LightingEngine.cpp
+    ../src/LightingEngine.cpp \
+    TestDeviceWriter.cpp \
+    ../src/DeviceWriter.cpp
