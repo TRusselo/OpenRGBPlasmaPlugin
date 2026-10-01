@@ -2,6 +2,12 @@
 
 # OpenRGB Plasma Integration
 
+> **Status: waiting on upstream fixes.** The plugin works, but a few fixes it relies on have not been released yet:
+>
+> - **Home Assistant users:** openrgb-python 0.3.7 (used by HA's OpenRGB integration) fails to connect to any OpenRGB that has a plugin other than Effects loaded, including this one. Fix: [jath03/openrgb-python#95](https://github.com/jath03/openrgb-python/pull/95). Until it ships, loading this plugin cuts Home Assistant off.
+> - **Home Assistant on OpenRGB 1.0:** colour and mode changes from HA are often dropped. Reported as [OpenRGB #5924](https://gitlab.com/CalcProgrammer1/OpenRGB/-/issues/5924); client-side fix in [jath03/openrgb-python#96](https://github.com/jath03/openrgb-python/pull/96).
+> - **Plasma:** PowerDevil only notices the backlight after a restart (the tab has a button for it). Fix: [plasma/powerdevil!691](https://invent.kde.org/plasma/powerdevil/-/merge_requests/691).
+
 An OpenRGB 1.0 plugin that lets KDE Plasma control your RGB lights:
 
 - **Brightness**: Plasma's Brightness & Color widget gets a Keyboard Backlight slider that dims every OpenRGB device. Keyboard brightness keys and Plasma's idle dimming work too.
