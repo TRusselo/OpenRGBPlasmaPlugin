@@ -24,7 +24,9 @@ HEADERS += \
     ../src/LightingEngine.h \
     TestDeviceWriter.h \
     ../src/LightMetaType.h \
-    ../src/DeviceWriter.h
+    ../src/DeviceWriter.h \
+    TestUledsBacklight.h \
+    ../src/UledsBacklight.h
 
 SOURCES += \
     main.cpp \
@@ -38,4 +40,6 @@ SOURCES += \
     TestLightingEngine.cpp \
     ../src/LightingEngine.cpp \
     TestDeviceWriter.cpp \
-    ../src/DeviceWriter.cpp
+    ../src/DeviceWriter.cpp \
+    TestUledsBacklight.cpp \
+    ../src/UledsBacklight.cpp

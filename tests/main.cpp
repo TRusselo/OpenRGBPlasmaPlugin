@@ -11,6 +11,7 @@
 #include "TestPluginSettings.h"
 #include "TestLightingEngine.h"
 #include "TestDeviceWriter.h"
+#include "TestUledsBacklight.h"
 
 int main(int argc, char** argv)
 {
@@ -33,6 +34,7 @@ int main(int argc, char** argv)
     tests.emplace_back(new TestPluginSettings);
     tests.emplace_back(new TestLightingEngine);
     tests.emplace_back(new TestDeviceWriter);
+    tests.emplace_back(new TestUledsBacklight);
 
     int status = 0;
     for(const std::unique_ptr<QObject>& test : tests)

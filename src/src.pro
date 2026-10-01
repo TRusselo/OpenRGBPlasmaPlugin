@@ -26,7 +26,8 @@ HEADERS += \
     Light.h \
     LightingEngine.h \
     LightMetaType.h \
-    DeviceWriter.h
+    DeviceWriter.h \
+    UledsBacklight.h
 
 SOURCES += \
     PlasmaIntegrationPlugin.cpp \
@@ -34,7 +35,8 @@ SOURCES += \
     DeviceKey.cpp \
     PluginSettings.cpp \
     LightingEngine.cpp \
-    DeviceWriter.cpp
+    DeviceWriter.cpp \
+    UledsBacklight.cpp
 
 DISTFILES += \
     PlasmaIntegrationPlugin.json
