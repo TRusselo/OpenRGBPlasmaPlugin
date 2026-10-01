@@ -42,4 +42,6 @@ private slots:
     void replugRestoresOwnColor();
     void departedLightFollowsLevelChange();
     void departedLightGetsAccentChange();
+    void returningLightRestoresItsMode();
+    void levelWritesNeverChangeMode();
 };

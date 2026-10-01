@@ -19,7 +19,7 @@ class Harness
 {
 public:
     Harness()
-        : engine([this](const std::string& key, const LightState& target, std::uint64_t sequence) { requests.push_back({key, target, sequence}); })
+        : engine([this](const std::string& key, const LightState& target, std::uint64_t sequence, bool restoreMode) { requests.push_back({key, target, sequence, restoreMode}); })
     {
     }
 
@@ -46,7 +46,7 @@ public:
         requests.clear();
         for(const Request& request : pending)
         {
-            lights[request.first]->apply(request.second);
+            lights[request.first]->apply(request.second, request.restoreMode);
             engine.onLightChanged(request.first);
             engine.onWriteFinished(request.first, request.sequence);
         }
@@ -86,6 +86,7 @@ public:
         std::string first;
         LightState second;
         std::uint64_t sequence = 0;
+        bool restoreMode = false;
     };
 
     std::vector<Request> requests;
@@ -218,7 +219,7 @@ void TestLightingEngine::outsideWriteDuringOwnWriteIsDetected()
     const LightState target = request.second;
     h.requests.clear();
 
-    h.lights["keyboard"]->apply(target);
+    h.lights["keyboard"]->apply(target, false);
     h.lights["keyboard"]->state = directLight({Red});
     h.engine.onLightChanged("keyboard");
     h.engine.onWriteFinished("keyboard", request.sequence);
@@ -241,12 +242,12 @@ void TestLightingEngine::supersededWriteKeepsWaiting()
     const std::uint64_t secondSequence = h.requests[1].sequence;
     h.requests.clear();
 
-    h.lights["keyboard"]->apply(first);
+    h.lights["keyboard"]->apply(first, false);
     h.engine.onWriteFinished("keyboard", firstSequence);
     h.engine.onLightChanged("keyboard");
     QCOMPARE(h.engine.follows("keyboard"), true);
 
-    h.lights["keyboard"]->apply(second);
+    h.lights["keyboard"]->apply(second, false);
     h.engine.onWriteFinished("keyboard", secondSequence);
     h.engine.onLightChanged("keyboard");
     QCOMPARE(h.engine.follows("keyboard"), true);
@@ -392,10 +393,10 @@ void TestLightingEngine::outOfOrderAckIsIgnored()
     h.engine.setLevel(50);
     QCOMPARE(int(h.requests.size()), 3);
 
-    h.lights["keyboard"]->apply(h.requests[0].second);
-    h.lights["keyboard"]->apply(h.requests[1].second);
+    h.lights["keyboard"]->apply(h.requests[0].second, false);
+    h.lights["keyboard"]->apply(h.requests[1].second, false);
     h.acknowledge(0);
-    h.lights["keyboard"]->apply(h.requests[2].second);
+    h.lights["keyboard"]->apply(h.requests[2].second, false);
     h.engine.onLightChanged("keyboard");
     h.acknowledge(1);
     h.acknowledge(2);
@@ -614,4 +615,31 @@ void TestLightingEngine::departedLightGetsAccentChange()
     const std::optional<LightState> mat = h.lastRequestFor("mat");
     QVERIFY(mat.has_value());
     QCOMPARE(*mat, directLight({Accent}));
+}
+
+void TestLightingEngine::returningLightRestoresItsMode()
+{
+    Harness h;
+    h.add("mat", directLight({Red}));
+    h.outsideChange("mat", lightWithMode(offMode(1), {Red}));
+    h.remove("mat");
+
+    h.add("mat", directLight({Black}));
+
+    QCOMPARE(int(h.requests.size()), 1);
+    QCOMPARE(h.requests[0].restoreMode, true);
+    h.completeWrites();
+    h.engine.setLevel(50);
+    QCOMPARE(int(h.requests.size()), 0);
+}
+
+void TestLightingEngine::levelWritesNeverChangeMode()
+{
+    Harness h;
+    h.add("keyboard", directLight({Red}));
+
+    h.engine.setLevel(50);
+
+    QCOMPARE(int(h.requests.size()), 1);
+    QCOMPARE(h.requests[0].restoreMode, false);
 }

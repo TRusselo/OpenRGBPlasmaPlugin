@@ -16,7 +16,7 @@
 class LightingEngine
 {
 public:
-    using WriteRequest = std::function<void(const std::string& key, const LightState& target, std::uint64_t sequence)>;
+    using WriteRequest = std::function<void(const std::string& key, const LightState& target, std::uint64_t sequence, bool restoreMode)>;
 
     explicit LightingEngine(WriteRequest writeRequest);
 
@@ -39,6 +39,7 @@ private:
         bool follows = false;
         bool writing = false;
         bool unlit = false;
+        bool restoreMode = false;
         std::uint64_t sequence = 0;
         std::optional<LightState> expected;
         std::deque<LightState> recent;

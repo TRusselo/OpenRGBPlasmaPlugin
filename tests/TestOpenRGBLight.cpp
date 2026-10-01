@@ -86,7 +86,7 @@ void TestOpenRGBLight::applyWritesOnlyChangedLeds()
     LightState target = light.read();
     target.zones[1].leds[0] = makeRgb(1, 2, 3);
 
-    light.apply(target);
+    light.apply(target, false);
 
     QCOMPARE(fake.colors[2], makeRgb(1, 2, 3));
     QCOMPARE(fake.colors[0], makeRgb(10, 20, 30));
@@ -104,7 +104,7 @@ void TestOpenRGBLight::applyUpdatesModeColors()
     LightState target = light.read();
     target.mode.colors[0] = makeRgb(9, 9, 9);
 
-    light.apply(target);
+    light.apply(target, false);
 
     QCOMPARE(fake.modes[1].colors[0], makeRgb(9, 9, 9));
     QCOMPARE(fake.updateModeCalls, 1);
@@ -120,7 +120,7 @@ void TestOpenRGBLight::applySkipsWhenModeChanged()
     target.zones[0].leds[0] = makeRgb(1, 1, 1);
     fake.activeMode = 1;
 
-    light.apply(target);
+    light.apply(target, false);
 
     QCOMPARE(fake.colors[0], makeRgb(10, 20, 30));
     QCOMPARE(fake.updateLEDsCalls, 0);
@@ -142,4 +142,35 @@ void TestOpenRGBLight::effectsOnlyZoneReadsOnlyItsColors()
     QCOMPARE(int(state.zones[0].leds.size()), 1);
     QCOMPARE(state.zones[0].leds[0], makeRgb(10, 20, 30));
     QCOMPARE(state.zones[1].leds[0], makeRgb(40, 50, 60));
+}
+
+void TestOpenRGBLight::applyRestoresModeWhenAsked()
+{
+    FakeController fake;
+    makeTwoZoneDirect(fake);
+    OpenRGBLight light(&fake);
+    LightState target = light.read();
+    target.zones[0].leds[0] = makeRgb(1, 2, 3);
+    fake.activeMode = 1;
+
+    light.apply(target, true);
+
+    QCOMPARE(fake.activeMode, 0);
+    QCOMPARE(fake.colors[0], makeRgb(1, 2, 3));
+    QCOMPARE(fake.updateLEDsCalls, 1);
+}
+
+void TestOpenRGBLight::applyRestoresZoneModeWhenAsked()
+{
+    FakeController fake;
+    makeTwoZoneDirect(fake);
+    fake.zones[1].modes = {fakeStatic(makeRgb(0, 0, 200))};
+    fake.zones[1].activeMode = 0;
+    OpenRGBLight light(&fake);
+    const LightState target = light.read();
+    fake.zones[1].activeMode = -1;
+
+    light.apply(target, true);
+
+    QCOMPARE(fake.zones[1].activeMode, 0);
 }

@@ -65,9 +65,9 @@ void PlasmaIntegrationPlugin::Load(OpenRGBPluginAPIInterface* plugin_api)
     connect(&writerThread, &QThread::finished, writer, &QObject::deleteLater);
     writerThread.start();
 
-    engine = std::make_unique<LightingEngine>([this](const std::string& key, const LightState& target, std::uint64_t sequence) {
+    engine = std::make_unique<LightingEngine>([this](const std::string& key, const LightState& target, std::uint64_t sequence, bool restoreMode) {
         QMetaObject::invokeMethod(writer, "enqueue", Qt::QueuedConnection, Q_ARG(QString, QString::fromStdString(key)), Q_ARG(LightState, target),
-                                  Q_ARG(quint64, quint64(sequence)));
+                                  Q_ARG(quint64, quint64(sequence)), Q_ARG(bool, restoreMode));
     });
     engine->setSettings(settings);
     connect(writer, &DeviceWriter::written, this, [this](const QString& key, quint64 sequence) {

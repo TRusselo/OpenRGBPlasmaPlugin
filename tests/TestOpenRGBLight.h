@@ -14,4 +14,6 @@ private slots:
     void applyUpdatesModeColors();
     void applySkipsWhenModeChanged();
     void effectsOnlyZoneReadsOnlyItsColors();
+    void applyRestoresModeWhenAsked();
+    void applyRestoresZoneModeWhenAsked();
 };

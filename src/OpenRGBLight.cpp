@@ -95,9 +95,25 @@ LightState OpenRGBLight::read() const
     return state;
 }
 
-void OpenRGBLight::apply(const LightState& target)
+void OpenRGBLight::apply(const LightState& target, bool restoreMode)
 {
-    const LightState current = read();
+    LightState current = read();
+    if(restoreMode && target.zones.size() == current.zones.size())
+    {
+        if(target.mode.index >= 0 && target.mode.index != current.mode.index && target.mode.index < int(rgb->GetModeCount()))
+        {
+            rgb->SetActiveMode(target.mode.index);
+        }
+        for(unsigned int zone = 0; zone < target.zones.size(); zone++)
+        {
+            const int wanted = target.zones[zone].mode.index;
+            if(wanted != current.zones[zone].mode.index && wanted >= -1 && wanted < int(rgb->GetZoneModeCount(zone)))
+            {
+                rgb->SetZoneActiveMode(zone, wanted);
+            }
+        }
+        current = read();
+    }
     if(target.mode.index != current.mode.index || target.zones.size() != current.zones.size())
     {
         return;

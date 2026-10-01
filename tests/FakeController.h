@@ -55,6 +55,16 @@ public:
     void SetModeColor(unsigned int mode, unsigned int color_index, RGBColor color) override { modes.at(mode).colors.at(color_index) = color; }
     void SetModeBrightness(unsigned int mode, unsigned int brightness) override { modes.at(mode).brightness = brightness; }
     void UpdateMode() override { updateModeCalls++; }
+    void SetActiveMode(int mode) override
+    {
+        activeMode = mode;
+        updateModeCalls++;
+    }
+    void SetZoneActiveMode(unsigned int zone, int mode) override
+    {
+        zones.at(zone).activeMode = mode;
+        updateZoneModeCalls++;
+    }
 
     unsigned int GetZoneCount() override { return (unsigned int)zones.size(); }
     int GetZoneActiveMode(unsigned int zone) override { return zones.at(zone).activeMode; }

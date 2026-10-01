@@ -33,6 +33,7 @@ void LightingEngine::setLights(const std::vector<std::shared_ptr<Light>>& lights
         {
             Entry entry = remembered->second;
             entry.light = light;
+            entry.restoreMode = true;
             updated[key] = entry;
         }
         else
@@ -175,6 +176,7 @@ void LightingEngine::onWriteFinished(const std::string& key, std::uint64_t seque
         return;
     }
     entry.writing = false;
+    entry.restoreMode = false;
     const LightState state = entry.light->read();
     if(!isOwnState(entry, state))
     {
@@ -218,7 +220,7 @@ void LightingEngine::render(const std::string& key, Entry& entry)
     {
         entry.recent.pop_front();
     }
-    requestWrite(key, target, entry.sequence);
+    requestWrite(key, target, entry.sequence, entry.restoreMode);
 }
 
 LightingEngine::Entry LightingEngine::newEntry(const std::string& key, const std::shared_ptr<Light>& light) const
@@ -292,6 +294,7 @@ void LightingEngine::adoptOutsideState(Entry& entry, const LightState& state)
 {
     entry.base = state;
     entry.unlit = false;
+    entry.restoreMode = false;
     entry.follows = false;
     entry.expected.reset();
 }

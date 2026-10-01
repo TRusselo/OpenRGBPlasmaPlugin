@@ -29,13 +29,15 @@ public:
         return state;
     }
 
-    void apply(const LightState& target) override
+    void apply(const LightState& target, bool restoreMode) override
     {
         state = target;
+        lastRestoreMode = restoreMode;
         applyCount++;
     }
 
     std::string keyValue;
     LightState state;
     int applyCount = 0;
+    bool lastRestoreMode = false;
 };

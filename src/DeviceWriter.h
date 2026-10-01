@@ -22,7 +22,7 @@ public:
     void setLights(const std::vector<std::shared_ptr<Light>>& lights);
 
 public slots:
-    void enqueue(const QString& key, const LightState& target, quint64 sequence);
+    void enqueue(const QString& key, const LightState& target, quint64 sequence, bool restoreMode);
 
 signals:
     void written(const QString& key, quint64 sequence);
@@ -35,6 +35,7 @@ private:
     {
         LightState target;
         quint64 sequence = 0;
+        bool restoreMode = false;
     };
 
     std::map<std::string, Pending> pending;

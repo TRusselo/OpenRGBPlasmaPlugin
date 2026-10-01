@@ -16,7 +16,7 @@ public:
     std::string key() const override;
     std::string name() const override;
     LightState read() const override;
-    void apply(const LightState& target) override;
+    void apply(const LightState& target, bool restoreMode) override;
 
 private:
     RGBControllerInterface* rgb;
