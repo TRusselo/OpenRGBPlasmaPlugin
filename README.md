@@ -26,6 +26,8 @@ To do the setup by hand instead:
     sudo udevadm control --reload
     sudo udevadm trigger --name-match=uleds
 
+Then restart OpenRGB: the plugin only creates the backlight when it loads or after its own **Set up** succeeds.
+
 ## Known limitations
 
 - The Plasma slider does not move when something else changes brightness.

@@ -81,6 +81,7 @@ void TestSystemSetup::setupScriptWritesBothFilesAndLoadsModule()
     QVERIFY(script.contains(QStringLiteral("modprobe uleds")));
     QVERIFY(script.contains(QStringLiteral("udevadm trigger --name-match=uleds")));
     QVERIFY(SystemSetup::manualCommands().contains(QStringLiteral("sudo modprobe uleds")));
+    QVERIFY(SystemSetup::manualCommands().endsWith(QStringLiteral("# Then restart OpenRGB so the plugin picks up the backlight.")));
 }
 
 void TestSystemSetup::powerDevilRestartRule()

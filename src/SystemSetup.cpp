@@ -58,7 +58,8 @@ QString SystemSetup::manualCommands()
         "echo 'KERNEL==\"uleds\", TAG+=\"uaccess\"' | sudo tee /etc/udev/rules.d/70-openrgb-kbd-backlight.rules\n"
         "sudo modprobe uleds\n"
         "sudo udevadm control --reload\n"
-        "sudo udevadm trigger --name-match=uleds");
+        "sudo udevadm trigger --name-match=uleds\n"
+        "# Then restart OpenRGB so the plugin picks up the backlight.");
 }
 
 void SystemSetup::runSetup()
