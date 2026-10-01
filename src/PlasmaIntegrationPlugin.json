@@ -1,0 +1,11 @@
+{
+    "Id": "io.github.trusselo.openrgbplasmaplugin",
+    "Name": "Plasma Integration",
+    "VendorId": "trusselo",
+    "Version": "0.1.0",
+    "VersionStr": "0.1.0",
+    "Url": "https://github.com/TRusselo/OpenRGBPlasmaPlugin",
+    "Commit": "",
+    "Description": "Control OpenRGB lights from KDE Plasma's keyboard backlight slider and accent color",
+    "OpenRGBPluginAPIVersion": 5
+}
