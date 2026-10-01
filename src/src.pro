@@ -27,7 +27,8 @@ HEADERS += \
     LightingEngine.h \
     LightMetaType.h \
     DeviceWriter.h \
-    UledsBacklight.h
+    UledsBacklight.h \
+    AccentColorSource.h
 
 SOURCES += \
     PlasmaIntegrationPlugin.cpp \
@@ -36,7 +37,8 @@ SOURCES += \
     PluginSettings.cpp \
     LightingEngine.cpp \
     DeviceWriter.cpp \
-    UledsBacklight.cpp
+    UledsBacklight.cpp \
+    AccentColorSource.cpp
 
 DISTFILES += \
     PlasmaIntegrationPlugin.json

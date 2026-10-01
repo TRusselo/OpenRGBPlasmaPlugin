@@ -12,6 +12,7 @@
 #include "TestLightingEngine.h"
 #include "TestDeviceWriter.h"
 #include "TestUledsBacklight.h"
+#include "TestAccentColorSource.h"
 
 int main(int argc, char** argv)
 {
@@ -35,6 +36,7 @@ int main(int argc, char** argv)
     tests.emplace_back(new TestLightingEngine);
     tests.emplace_back(new TestDeviceWriter);
     tests.emplace_back(new TestUledsBacklight);
+    tests.emplace_back(new TestAccentColorSource);
 
     int status = 0;
     for(const std::unique_ptr<QObject>& test : tests)

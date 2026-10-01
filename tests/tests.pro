@@ -26,7 +26,9 @@ HEADERS += \
     ../src/LightMetaType.h \
     ../src/DeviceWriter.h \
     TestUledsBacklight.h \
-    ../src/UledsBacklight.h
+    ../src/UledsBacklight.h \
+    TestAccentColorSource.h \
+    ../src/AccentColorSource.h
 
 SOURCES += \
     main.cpp \
@@ -42,4 +44,6 @@ SOURCES += \
     TestDeviceWriter.cpp \
     ../src/DeviceWriter.cpp \
     TestUledsBacklight.cpp \
-    ../src/UledsBacklight.cpp
+    ../src/UledsBacklight.cpp \
+    TestAccentColorSource.cpp \
+    ../src/AccentColorSource.cpp
