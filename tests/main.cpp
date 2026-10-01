@@ -5,6 +5,7 @@
 #include <QTest>
 
 #include "TestPluginMetadata.h"
+#include "TestDimming.h"
 
 int main(int argc, char** argv)
 {
@@ -21,6 +22,7 @@ int main(int argc, char** argv)
 
     std::vector<std::unique_ptr<QObject>> tests;
     tests.emplace_back(new TestPluginMetadata);
+    tests.emplace_back(new TestDimming);
 
     int status = 0;
     for(const std::unique_ptr<QObject>& test : tests)

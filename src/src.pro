@@ -18,10 +18,13 @@ INCLUDEPATH += \
     $$PWD/../OpenRGB/qt
 
 HEADERS += \
-    PlasmaIntegrationPlugin.h
+    PlasmaIntegrationPlugin.h \
+    LightModel.h \
+    Dimming.h
 
 SOURCES += \
-    PlasmaIntegrationPlugin.cpp
+    PlasmaIntegrationPlugin.cpp \
+    Dimming.cpp
 
 DISTFILES += \
     PlasmaIntegrationPlugin.json
