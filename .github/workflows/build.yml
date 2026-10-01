@@ -1,0 +1,23 @@
+name: build
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+      - name: Install Qt
+        run: sudo apt-get update && sudo apt-get install -y qt6-base-dev qt6-base-dev-tools libgl-dev build-essential
+      - name: Build
+        run: mkdir build && cd build && /usr/lib/qt6/bin/qmake ../OpenRGBPlasmaPlugin.pro && make -j"$(nproc)"
+      - name: Test
+        run: build/tests/plasma-integration-tests
+      - uses: actions/upload-artifact@v4
+        with:
+          name: libOpenRGBPlasmaPlugin
+          path: build/src/libOpenRGBPlasmaPlugin.so
