@@ -28,7 +28,12 @@ HEADERS += \
     TestUledsBacklight.h \
     ../src/UledsBacklight.h \
     TestAccentColorSource.h \
-    ../src/AccentColorSource.h
+    ../src/AccentColorSource.h \
+    TestSystemSetup.h \
+    TestStatusText.h \
+    ../src/SystemSetup.h \
+    ../src/PowerDevilProbe.h \
+    ../src/StatusText.h
 
 SOURCES += \
     main.cpp \
@@ -46,4 +51,9 @@ SOURCES += \
     TestUledsBacklight.cpp \
     ../src/UledsBacklight.cpp \
     TestAccentColorSource.cpp \
-    ../src/AccentColorSource.cpp
+    ../src/AccentColorSource.cpp \
+    TestSystemSetup.cpp \
+    TestStatusText.cpp \
+    ../src/SystemSetup.cpp \
+    ../src/PowerDevilProbe.cpp \
+    ../src/StatusText.cpp

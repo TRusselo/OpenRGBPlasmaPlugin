@@ -28,7 +28,10 @@ HEADERS += \
     LightMetaType.h \
     DeviceWriter.h \
     UledsBacklight.h \
-    AccentColorSource.h
+    AccentColorSource.h \
+    SystemSetup.h \
+    PowerDevilProbe.h \
+    StatusText.h
 
 SOURCES += \
     PlasmaIntegrationPlugin.cpp \
@@ -38,7 +41,10 @@ SOURCES += \
     LightingEngine.cpp \
     DeviceWriter.cpp \
     UledsBacklight.cpp \
-    AccentColorSource.cpp
+    AccentColorSource.cpp \
+    SystemSetup.cpp \
+    PowerDevilProbe.cpp \
+    StatusText.cpp
 
 DISTFILES += \
     PlasmaIntegrationPlugin.json
