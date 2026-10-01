@@ -6,6 +6,8 @@
 
 #include "TestPluginMetadata.h"
 #include "TestDimming.h"
+#include "TestDeviceKey.h"
+#include "TestPluginSettings.h"
 
 int main(int argc, char** argv)
 {
@@ -23,6 +25,8 @@ int main(int argc, char** argv)
     std::vector<std::unique_ptr<QObject>> tests;
     tests.emplace_back(new TestPluginMetadata);
     tests.emplace_back(new TestDimming);
+    tests.emplace_back(new TestDeviceKey);
+    tests.emplace_back(new TestPluginSettings);
 
     int status = 0;
     for(const std::unique_ptr<QObject>& test : tests)

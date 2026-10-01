@@ -13,10 +13,18 @@ HEADERS += \
     LightBuilders.h \
     TestDimming.h \
     ../src/LightModel.h \
-    ../src/Dimming.h
+    ../src/Dimming.h \
+    TestDeviceKey.h \
+    TestPluginSettings.h \
+    ../src/DeviceKey.h \
+    ../src/PluginSettings.h
 
 SOURCES += \
     main.cpp \
     TestPluginMetadata.cpp \
     TestDimming.cpp \
-    ../src/Dimming.cpp
+    ../src/Dimming.cpp \
+    TestDeviceKey.cpp \
+    TestPluginSettings.cpp \
+    ../src/DeviceKey.cpp \
+    ../src/PluginSettings.cpp

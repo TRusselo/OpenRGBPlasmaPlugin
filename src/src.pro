@@ -20,11 +20,15 @@ INCLUDEPATH += \
 HEADERS += \
     PlasmaIntegrationPlugin.h \
     LightModel.h \
-    Dimming.h
+    Dimming.h \
+    DeviceKey.h \
+    PluginSettings.h
 
 SOURCES += \
     PlasmaIntegrationPlugin.cpp \
-    Dimming.cpp
+    Dimming.cpp \
+    DeviceKey.cpp \
+    PluginSettings.cpp
 
 DISTFILES += \
     PlasmaIntegrationPlugin.json
