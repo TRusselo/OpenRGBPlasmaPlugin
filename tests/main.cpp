@@ -8,6 +8,7 @@
 #include "TestDimming.h"
 #include "TestDeviceKey.h"
 #include "TestPluginSettings.h"
+#include "TestLightingEngine.h"
 
 int main(int argc, char** argv)
 {
@@ -27,6 +28,7 @@ int main(int argc, char** argv)
     tests.emplace_back(new TestDimming);
     tests.emplace_back(new TestDeviceKey);
     tests.emplace_back(new TestPluginSettings);
+    tests.emplace_back(new TestLightingEngine);
 
     int status = 0;
     for(const std::unique_ptr<QObject>& test : tests)

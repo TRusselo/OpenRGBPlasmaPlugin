@@ -17,7 +17,11 @@ HEADERS += \
     TestDeviceKey.h \
     TestPluginSettings.h \
     ../src/DeviceKey.h \
-    ../src/PluginSettings.h
+    ../src/PluginSettings.h \
+    FakeLight.h \
+    TestLightingEngine.h \
+    ../src/Light.h \
+    ../src/LightingEngine.h
 
 SOURCES += \
     main.cpp \
@@ -27,4 +31,6 @@ SOURCES += \
     TestDeviceKey.cpp \
     TestPluginSettings.cpp \
     ../src/DeviceKey.cpp \
-    ../src/PluginSettings.cpp
+    ../src/PluginSettings.cpp \
+    TestLightingEngine.cpp \
+    ../src/LightingEngine.cpp
