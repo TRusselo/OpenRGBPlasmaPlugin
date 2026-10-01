@@ -30,4 +30,12 @@ private slots:
     void reshapedLightReadsFreshBase();
     void newLightGetsAccent();
     void newLightWithoutAccentTickIsLeftAlone();
+    void newBlackLightTakesOthersColor();
+    void newBlackLightIsDimmedToLevel();
+    void unlitLightFillsOnNextSliderMove();
+    void turnedOffLightStaysOff();
+    void untickedBlackLightIsLeftAlone();
+    void offModeLightIsLeftAlone();
+    void accentClearsUnlit();
+    void rescannedLightGetsStateBack();
 };

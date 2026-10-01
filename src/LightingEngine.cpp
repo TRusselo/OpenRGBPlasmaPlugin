@@ -17,7 +17,6 @@ LightingEngine::LightingEngine(WriteRequest writeRequest)
 void LightingEngine::setLights(const std::vector<std::shared_ptr<Light>>& lights)
 {
     std::map<std::string, Entry> updated;
-    std::vector<std::string> added;
     for(const std::shared_ptr<Light>& light : lights)
     {
         const std::string key = light->key();
@@ -30,12 +29,15 @@ void LightingEngine::setLights(const std::vector<std::shared_ptr<Light>>& lights
             continue;
         }
         updated[key] = newEntry(key, light);
-        added.push_back(key);
     }
     entries = std::move(updated);
-    for(const std::string& key : added)
+    fillUnlit();
+    for(auto& [key, entry] : entries)
     {
-        render(key, entries[key]);
+        if(!entry.writing)
+        {
+            render(key, entry);
+        }
     }
 }
 
@@ -51,6 +53,7 @@ void LightingEngine::setSettings(const PluginSettings& newSettings)
         if(after.accent && !before.accent && accent)
         {
             entry.base = withAccent(entry.base, *accent);
+            entry.unlit = false;
             changed = true;
         }
         if(after.dim != before.dim || changed)
@@ -68,6 +71,7 @@ void LightingEngine::setSettings(const PluginSettings& newSettings)
 void LightingEngine::setLevel(int level)
 {
     currentLevel = std::clamp(level, 0, 100);
+    fillUnlit();
     for(auto& [key, entry] : entries)
     {
         if(settings.optionsFor(key).dim)
@@ -93,6 +97,7 @@ void LightingEngine::setAccent(std::optional<Rgb> newAccent)
             continue;
         }
         entry.base = withAccent(entry.base, *accent);
+        entry.unlit = false;
         entry.follows = options.dim;
         render(key, entry);
     }
@@ -188,7 +193,35 @@ LightingEngine::Entry LightingEngine::newEntry(const std::string& key, const std
         entry.base = withAccent(entry.base, *accent);
     }
     entry.follows = options.dim;
+    entry.unlit = isUnlit(entry.base);
     return entry;
+}
+
+void LightingEngine::fillUnlit()
+{
+    std::vector<Rgb> colors;
+    for(const auto& [key, entry] : entries)
+    {
+        const std::optional<Rgb> color = entry.unlit ? std::nullopt : litColor(entry.base);
+        if(color)
+        {
+            colors.push_back(*color);
+        }
+    }
+    const std::optional<Rgb> fill = blendColors(colors);
+    if(!fill)
+    {
+        return;
+    }
+    for(auto& [key, entry] : entries)
+    {
+        if(entry.unlit && settings.optionsFor(key).dim)
+        {
+            entry.base = withAccent(entry.base, *fill);
+            entry.unlit = false;
+            entry.follows = true;
+        }
+    }
 }
 
 bool LightingEngine::isOwnState(const Entry& entry, const LightState& state)
@@ -219,6 +252,7 @@ bool LightingEngine::sameShape(const LightState& a, const LightState& b)
 void LightingEngine::adoptOutsideState(Entry& entry, const LightState& state)
 {
     entry.base = state;
+    entry.unlit = false;
     entry.follows = false;
     entry.expected.reset();
 }

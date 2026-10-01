@@ -8,6 +8,7 @@
 
 #include <QTest>
 
+#include "Dimming.h"
 #include "FakeLight.h"
 #include "LightBuilders.h"
 #include "LightingEngine.h"
@@ -67,6 +68,19 @@ public:
         publish();
     }
 
+    std::optional<LightState> lastRequestFor(const std::string& key) const
+    {
+        std::optional<LightState> found;
+        for(const Request& request : requests)
+        {
+            if(request.first == key)
+            {
+                found = request.second;
+            }
+        }
+        return found;
+    }
+
     struct Request
     {
         std::string first;
@@ -93,6 +107,7 @@ private:
 const Rgb Orange = makeRgb(200, 100, 0);
 const Rgb Red = makeRgb(255, 0, 0);
 const Rgb Accent = makeRgb(61, 174, 233);
+const Rgb Black = makeRgb(0, 0, 0);
 }
 
 void TestLightingEngine::startupAtFullLevelWritesNothing()
@@ -421,4 +436,114 @@ void TestLightingEngine::newLightWithoutAccentTickIsLeftAlone()
     h.engine.setAccent(Accent);
     h.add("keyboard", directLight({Orange}));
     QCOMPARE(int(h.requests.size()), 0);
+}
+
+void TestLightingEngine::newBlackLightTakesOthersColor()
+{
+    Harness h;
+    h.add("keyboard", directLight({Red}));
+    h.add("mouse", directLight({Black, Black}));
+
+    const std::optional<LightState> mouse = h.lastRequestFor("mouse");
+    QVERIFY(mouse.has_value());
+    QCOMPARE(*mouse, directLight({Red, Red}));
+    QCOMPARE(h.engine.follows("mouse"), true);
+}
+
+void TestLightingEngine::newBlackLightIsDimmedToLevel()
+{
+    Harness h;
+    h.engine.setLevel(40);
+    h.add("keyboard", directLight({Red}));
+    h.add("mouse", directLight({Black}));
+
+    const std::optional<LightState> mouse = h.lastRequestFor("mouse");
+    QVERIFY(mouse.has_value());
+    QCOMPARE(*mouse, directLight({makeRgb(102, 0, 0)}));
+}
+
+void TestLightingEngine::unlitLightFillsOnNextSliderMove()
+{
+    Harness h;
+    h.add("mouse", directLight({Black}));
+    h.add("keyboard", directLight({Black}));
+    QCOMPARE(int(h.requests.size()), 0);
+    h.outsideChange("keyboard", directLight({Red}));
+
+    h.engine.setLevel(50);
+
+    const std::optional<LightState> mouse = h.lastRequestFor("mouse");
+    QVERIFY(mouse.has_value());
+    QCOMPARE(*mouse, directLight({makeRgb(128, 0, 0)}));
+}
+
+void TestLightingEngine::turnedOffLightStaysOff()
+{
+    Harness h;
+    h.add("keyboard", directLight({Red}));
+    h.add("mouse", directLight({Red}));
+    h.outsideChange("mouse", directLight({Black}));
+
+    h.engine.setLevel(50);
+
+    QVERIFY(!h.lastRequestFor("mouse").has_value());
+    QCOMPARE(h.lights["mouse"]->state, directLight({Black}));
+}
+
+void TestLightingEngine::untickedBlackLightIsLeftAlone()
+{
+    Harness h;
+    PluginSettings settings;
+    settings.devices["mouse"] = DeviceOptions{false, true};
+    h.engine.setSettings(settings);
+    h.add("keyboard", directLight({Red}));
+    h.add("mouse", directLight({Black}));
+
+    h.engine.setLevel(50);
+
+    QVERIFY(!h.lastRequestFor("mouse").has_value());
+}
+
+void TestLightingEngine::offModeLightIsLeftAlone()
+{
+    Harness h;
+    h.add("keyboard", directLight({Red}));
+    h.add("g703", lightWithMode(offMode(1), {Black, Black}));
+
+    h.engine.setLevel(50);
+
+    QVERIFY(!h.lastRequestFor("g703").has_value());
+}
+
+void TestLightingEngine::accentClearsUnlit()
+{
+    Harness h;
+    PluginSettings settings;
+    settings.devices["keyboard"] = DeviceOptions{true, false};
+    h.engine.setSettings(settings);
+    h.add("mouse", directLight({Black}));
+    h.add("keyboard", directLight({Black}));
+    h.engine.setAccent(Accent);
+    h.completeWrites();
+    h.outsideChange("keyboard", directLight({Red}));
+
+    h.engine.setLevel(50);
+
+    const std::optional<LightState> mouse = h.lastRequestFor("mouse");
+    QVERIFY(mouse.has_value());
+    QCOMPARE(*mouse, directLight({scaleColor(Accent, 50)}));
+}
+
+void TestLightingEngine::rescannedLightGetsStateBack()
+{
+    Harness h;
+    h.add("keyboard", directLight({Orange}));
+    h.engine.setLevel(50);
+    h.completeWrites();
+
+    h.add("keyboard", directLight({Black}));
+
+    const std::optional<LightState> keyboard = h.lastRequestFor("keyboard");
+    QVERIFY(keyboard.has_value());
+    QCOMPARE(*keyboard, directLight({makeRgb(100, 50, 0)}));
 }

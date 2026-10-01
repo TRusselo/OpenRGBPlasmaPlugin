@@ -96,3 +96,36 @@ void TestDimming::accentLeavesColorlessModesUnchanged()
     const LightState off = lightWithMode(offMode(3), {makeRgb(50, 60, 70)});
     QCOMPARE(withAccent(off, makeRgb(61, 174, 233)), off);
 }
+
+void TestDimming::blackLightIsUnlit()
+{
+    const Rgb black = makeRgb(0, 0, 0);
+    QVERIFY(isUnlit(directLight({black, black})));
+    QVERIFY(isUnlit(lightWithMode(staticMode(2, black), {})));
+    QVERIFY(!isUnlit(directLight({black, makeRgb(255, 0, 0)})));
+}
+
+void TestDimming::colorlessLightIsNotUnlit()
+{
+    QVERIFY(!isUnlit(lightWithMode(offMode(1), {makeRgb(0, 0, 0)})));
+    QVERIFY(!isUnlit(LightState()));
+}
+
+void TestDimming::litColorIgnoresBlackLeds()
+{
+    const std::optional<Rgb> red = litColor(directLight({makeRgb(255, 0, 0), makeRgb(0, 0, 0), makeRgb(255, 0, 0)}));
+    QVERIFY(red.has_value());
+    QCOMPARE(*red, makeRgb(255, 0, 0));
+    QVERIFY(!litColor(directLight({makeRgb(0, 0, 0)})).has_value());
+}
+
+void TestDimming::blendKeepsTypicalBrightness()
+{
+    const std::optional<Rgb> magenta = blendColors({makeRgb(255, 0, 0), makeRgb(0, 0, 255)});
+    QVERIFY(magenta.has_value());
+    QCOMPARE(*magenta, makeRgb(255, 0, 255));
+    const std::optional<Rgb> orange = blendColors({makeRgb(200, 100, 0)});
+    QVERIFY(orange.has_value());
+    QCOMPARE(*orange, makeRgb(200, 100, 0));
+    QVERIFY(!blendColors({}).has_value());
+}

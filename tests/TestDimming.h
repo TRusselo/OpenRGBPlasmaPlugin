@@ -20,4 +20,8 @@ private slots:
     void renderHandlesEmptyLight();
     void accentPaintsPerLedAndModeColors();
     void accentLeavesColorlessModesUnchanged();
+    void blackLightIsUnlit();
+    void colorlessLightIsNotUnlit();
+    void litColorIgnoresBlackLeds();
+    void blendKeepsTypicalBrightness();
 };

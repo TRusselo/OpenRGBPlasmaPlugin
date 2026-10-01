@@ -38,6 +38,7 @@ private:
         LightState base;
         bool follows = false;
         bool writing = false;
+        bool unlit = false;
         std::uint64_t sequence = 0;
         std::optional<LightState> expected;
         std::deque<LightState> recent;
@@ -45,6 +46,7 @@ private:
 
     Entry newEntry(const std::string& key, const std::shared_ptr<Light>& light) const;
     void render(const std::string& key, Entry& entry);
+    void fillUnlit();
     static bool isOwnState(const Entry& entry, const LightState& state);
     static bool sameShape(const LightState& a, const LightState& b);
     static void adoptOutsideState(Entry& entry, const LightState& state);
