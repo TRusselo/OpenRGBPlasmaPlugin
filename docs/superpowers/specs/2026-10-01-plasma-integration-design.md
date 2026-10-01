@@ -58,9 +58,11 @@ It ships as an OpenRGB plugin in its own repository (`TRusselo/OpenRGBPlasmaPlug
 Settings are stored under OpenRGB settings key `PlasmaIntegrationPlugin`:
 
 ```json
-{ "accent_enabled": true,
+{ "accent_enabled": false,
   "devices": { "<device key>": { "dim": true, "accent": true } } }
 ```
+
+The accent switch starts **off**, so installing the plugin never recolors anything; switching it on applies the accent (§6 event 3), and while it is on the accent is applied again each time OpenRGB starts.
 
 **Device key**: `name|serial` when the serial is non-empty and not `none`; otherwise `name|location`. (USB paths change between boots, so the serial comes first.) Devices without a saved entry use both checkboxes on.
 
