@@ -145,7 +145,7 @@ Status line states: **Ready**, **Needs setup**, **This kernel has no uleds** (br
 
 ## 11. To verify during implementation
 
-- What sets the backlight's level when it first appears (a value of 10 was seen once after a PowerDevil restart; possibly UPower restoring a saved level). The plugin treats any OS value as a level change, so if the OS restores a low level at login the lights follow it.
+- ~~What sets the backlight's level when it first appears~~ **Resolved 2026-10-01:** the kernel reports brightness 0 the moment a uleds LED registers, and UPower 1.91.4's combined `KbdBacklight` object keeps its own cached value (0) that per-device changes do not update; PowerDevil listens only to the combined object. The plugin discards the registration value, and once UPower exports the LED it sets the combined object to 100% when ours is the only keyboard backlight, or sets its own LED to the existing shared level when another (e.g. a laptop's) exists. Lights, sysfs, UPower and PowerDevil then agree at start.
 - The exact session D-Bus signal Plasma emits when `kdeglobals` changes (KConfigWatcher), and whether the file-watcher fallback is needed.
 - `pkexec` prompting from inside OpenRGB (polkit agent available in the Plasma session).
 - Whether controller write calls are safe from a worker thread in OpenRGB 1.0, or must run on OpenRGB's thread.

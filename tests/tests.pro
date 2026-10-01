@@ -41,7 +41,9 @@ HEADERS += \
     StubController.h \
     FakeController.h \
     TestOpenRGBLight.h \
-    ../src/OpenRGBLight.h
+    ../src/OpenRGBLight.h \
+    TestUPowerLevelSync.h \
+    ../src/UPowerLevelSync.h
 
 SOURCES += \
     main.cpp \
@@ -68,4 +70,6 @@ SOURCES += \
     TestSettingsTab.cpp \
     ../src/SettingsTab.cpp \
     TestOpenRGBLight.cpp \
-    ../src/OpenRGBLight.cpp
+    ../src/OpenRGBLight.cpp \
+    TestUPowerLevelSync.cpp \
+    ../src/UPowerLevelSync.cpp

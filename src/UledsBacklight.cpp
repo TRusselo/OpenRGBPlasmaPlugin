@@ -3,6 +3,7 @@
 #include <cerrno>
 #include <cstring>
 #include <fcntl.h>
+#include <poll.h>
 #include <unistd.h>
 
 #include <QFile>
@@ -12,6 +13,7 @@
 namespace
 {
 constexpr int NameSize = 64;
+constexpr int InitialLevelWaitMs = 200;
 }
 
 UledsBacklight::UledsBacklight(const QString& ledName, const QString& devicePath, const QString& ledsDir, QObject* parent)
@@ -55,6 +57,7 @@ UledsBacklight::Status UledsBacklight::open()
         return current;
     }
 
+    drainInitialLevel();
     notifier = new QSocketNotifier(fd, QSocketNotifier::Read, this);
     connect(notifier, &QSocketNotifier::activated, this, &UledsBacklight::onReadable);
     current = Status::Ready;
@@ -101,6 +104,16 @@ std::optional<int> UledsBacklight::parseLevel(const QByteArray& data)
     int value = 0;
     std::memcpy(&value, data.constData(), sizeof(int));
     return value;
+}
+
+void UledsBacklight::drainInitialLevel()
+{
+    pollfd waiting{fd, POLLIN, 0};
+    if(::poll(&waiting, 1, InitialLevelWaitMs) > 0)
+    {
+        int initial = 0;
+        [[maybe_unused]] const ssize_t ignored = ::read(fd, &initial, sizeof(initial));
+    }
 }
 
 void UledsBacklight::onReadable()

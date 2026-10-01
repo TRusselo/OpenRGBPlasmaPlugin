@@ -14,6 +14,7 @@
 #include "StatusText.h"
 #include "SystemSetup.h"
 #include "UledsBacklight.h"
+#include "UPowerLevelSync.h"
 
 PlasmaIntegrationPlugin::PlasmaIntegrationPlugin() = default;
 
@@ -77,6 +78,7 @@ void PlasmaIntegrationPlugin::Load(OpenRGBPluginAPIInterface* plugin_api)
     });
 
     setup = new SystemSetup(this);
+    levelSync = new UPowerLevelSync(QStringLiteral("openrgb::kbd_backlight"), UledsBacklight::MaxBrightness, this);
     probe = new PowerDevilProbe(this);
     accentSource = new AccentColorSource(AccentColorSource::defaultPath(), this);
 
@@ -259,9 +261,9 @@ void PlasmaIntegrationPlugin::onControllerChanged(void* controller)
 
 void PlasmaIntegrationPlugin::openBacklight()
 {
-    if(SystemSetup::detect(SystemSetup::systemPaths()) == SystemSetup::State::Ready)
+    if(SystemSetup::detect(SystemSetup::systemPaths()) == SystemSetup::State::Ready && backlight->open() == UledsBacklight::Status::Ready)
     {
-        backlight->open();
+        levelSync->start();
     }
     updateStatus();
     checkPowerDevilSoon();

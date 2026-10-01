@@ -1,10 +1,13 @@
 #include "TestUledsBacklight.h"
 
 #include <cstring>
+#include <fcntl.h>
+#include <sys/stat.h>
 #include <unistd.h>
 
 #include <QDir>
 #include <QFile>
+#include <QSignalSpy>
 #include <QTemporaryDir>
 #include <QTest>
 
@@ -64,4 +67,30 @@ void TestUledsBacklight::openRefusesTakenName()
     QVERIFY(QDir(dir.path()).mkdir(QStringLiteral("test::kbd_backlight")));
     UledsBacklight backlight(QStringLiteral("test::kbd_backlight"), dir.filePath(QStringLiteral("uleds")), dir.path());
     QCOMPARE(backlight.open(), UledsBacklight::Status::NameTaken);
+}
+
+void TestUledsBacklight::openConsumesKernelInitialLevel()
+{
+    QTemporaryDir dir;
+    const QString fifo = dir.filePath(QStringLiteral("uleds"));
+    QCOMPARE(::mkfifo(QFile::encodeName(fifo).constData(), 0600), 0);
+    const int kernel = ::open(QFile::encodeName(fifo).constData(), O_RDWR | O_CLOEXEC);
+    QVERIFY(kernel >= 0);
+    const int initial = 0;
+    QCOMPARE(::write(kernel, &initial, sizeof(initial)), ssize_t(sizeof(initial)));
+
+    UledsBacklight backlight(QStringLiteral("test::kbd_backlight"), fifo, dir.path());
+    QSignalSpy levels(&backlight, &UledsBacklight::levelChanged);
+    QCOMPARE(backlight.open(), UledsBacklight::Status::Ready);
+
+    const QByteArray expected = UledsBacklight::registration(QStringLiteral("test::kbd_backlight"), UledsBacklight::MaxBrightness);
+    QByteArray written(expected.size(), '\0');
+    QCOMPARE(::read(kernel, written.data(), size_t(written.size())), ssize_t(expected.size()));
+    QCOMPARE(written, expected);
+
+    const int level = 42;
+    QCOMPARE(::write(kernel, &level, sizeof(level)), ssize_t(sizeof(level)));
+    QVERIFY(levels.wait(2000));
+    QCOMPARE(levels.at(0).at(0).toInt(), 42);
+    ::close(kernel);
 }

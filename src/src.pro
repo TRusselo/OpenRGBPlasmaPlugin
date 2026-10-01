@@ -33,7 +33,8 @@ HEADERS += \
     PowerDevilProbe.h \
     StatusText.h \
     SettingsTab.h \
-    OpenRGBLight.h
+    OpenRGBLight.h \
+    UPowerLevelSync.h
 
 SOURCES += \
     PlasmaIntegrationPlugin.cpp \
@@ -48,7 +49,8 @@ SOURCES += \
     PowerDevilProbe.cpp \
     StatusText.cpp \
     SettingsTab.cpp \
-    OpenRGBLight.cpp
+    OpenRGBLight.cpp \
+    UPowerLevelSync.cpp
 
 DISTFILES += \
     PlasmaIntegrationPlugin.json

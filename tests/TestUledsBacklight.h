@@ -13,4 +13,5 @@ private slots:
     void openReportsMissingDevice();
     void openReportsNoPermission();
     void openRefusesTakenName();
+    void openConsumesKernelInitialLevel();
 };

@@ -19,6 +19,7 @@ class PowerDevilProbe;
 class SettingsTab;
 class SystemSetup;
 class UledsBacklight;
+class UPowerLevelSync;
 
 class PlasmaIntegrationPlugin : public QObject, public OpenRGBPluginInterface
 {
@@ -61,6 +62,7 @@ private:
     QThread writerThread;
     DeviceWriter* writer = nullptr;
     UledsBacklight* backlight = nullptr;
+    UPowerLevelSync* levelSync = nullptr;
     AccentColorSource* accentSource = nullptr;
     SystemSetup* setup = nullptr;
     PowerDevilProbe* probe = nullptr;

@@ -44,6 +44,7 @@ signals:
 
 private:
     void onReadable();
+    void drainInitialLevel();
 
     QString name;
     QString device;
