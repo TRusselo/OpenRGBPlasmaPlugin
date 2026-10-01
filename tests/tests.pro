@@ -33,7 +33,9 @@ HEADERS += \
     TestStatusText.h \
     ../src/SystemSetup.h \
     ../src/PowerDevilProbe.h \
-    ../src/StatusText.h
+    ../src/StatusText.h \
+    TestSettingsTab.h \
+    ../src/SettingsTab.h
 
 SOURCES += \
     main.cpp \
@@ -56,4 +58,6 @@ SOURCES += \
     TestStatusText.cpp \
     ../src/SystemSetup.cpp \
     ../src/PowerDevilProbe.cpp \
-    ../src/StatusText.cpp
+    ../src/StatusText.cpp \
+    TestSettingsTab.cpp \
+    ../src/SettingsTab.cpp

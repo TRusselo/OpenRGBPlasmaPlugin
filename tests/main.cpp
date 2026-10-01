@@ -15,6 +15,7 @@
 #include "TestAccentColorSource.h"
 #include "TestSystemSetup.h"
 #include "TestStatusText.h"
+#include "TestSettingsTab.h"
 
 int main(int argc, char** argv)
 {
@@ -41,6 +42,7 @@ int main(int argc, char** argv)
     tests.emplace_back(new TestAccentColorSource);
     tests.emplace_back(new TestSystemSetup);
     tests.emplace_back(new TestStatusText);
+    tests.emplace_back(new TestSettingsTab);
 
     int status = 0;
     for(const std::unique_ptr<QObject>& test : tests)

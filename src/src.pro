@@ -31,7 +31,8 @@ HEADERS += \
     AccentColorSource.h \
     SystemSetup.h \
     PowerDevilProbe.h \
-    StatusText.h
+    StatusText.h \
+    SettingsTab.h
 
 SOURCES += \
     PlasmaIntegrationPlugin.cpp \
@@ -44,7 +45,8 @@ SOURCES += \
     AccentColorSource.cpp \
     SystemSetup.cpp \
     PowerDevilProbe.cpp \
-    StatusText.cpp
+    StatusText.cpp \
+    SettingsTab.cpp
 
 DISTFILES += \
     PlasmaIntegrationPlugin.json
