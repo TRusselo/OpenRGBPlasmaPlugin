@@ -1,3 +1,5 @@
+<p align="center"><img src="docs/images/icon.jpg" width="160" alt="OpenRGB Plasma Integration icon"></p>
+
 # OpenRGB Plasma Integration
 
 An OpenRGB 1.0 plugin that lets KDE Plasma control your RGB lights:
