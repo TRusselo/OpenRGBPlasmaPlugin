@@ -6,7 +6,7 @@
 >
 > - **Home Assistant users:** openrgb-python 0.3.7 (used by HA's OpenRGB integration) fails to connect to any OpenRGB that has a plugin other than Effects loaded, including this one. Fix: [jath03/openrgb-python#95](https://github.com/jath03/openrgb-python/pull/95). Until it ships, loading this plugin cuts Home Assistant off.
 > - **Home Assistant on OpenRGB 1.0:** colour and mode changes from HA are often dropped. Reported as [OpenRGB #5924](https://gitlab.com/CalcProgrammer1/OpenRGB/-/issues/5924); client-side fix in [jath03/openrgb-python#96](https://github.com/jath03/openrgb-python/pull/96).
-> - **Plasma:** PowerDevil only notices the backlight after a restart (the tab has a button for it). Fix: [plasma/powerdevil!691](https://invent.kde.org/plasma/powerdevil/-/merge_requests/691).
+> - **Plasma:** PowerDevil only notices the backlight after a restart (the tab has a button for it). Fixed in [plasma/powerdevil!691](https://invent.kde.org/plasma/powerdevil/-/merge_requests/691), merged for Plasma 6.8.
 
 An OpenRGB 1.0 plugin that lets KDE Plasma control your RGB lights:
 
@@ -39,7 +39,7 @@ Then restart OpenRGB: the plugin only creates the backlight when it loads or aft
 ## Known limitations
 
 - The Plasma slider does not move when something else changes brightness.
-- Until KDE ships plasma/powerdevil!691, Plasma only notices the backlight after a PowerDevil restart; the tab offers a button for it.
+- Before Plasma 6.8 (plasma/powerdevil!691), Plasma only notices the backlight after a PowerDevil restart; the tab offers a button for it.
 - Idle dimming and screen-off turn the lights off and back on, like a laptop keyboard.
 
 ## Build
