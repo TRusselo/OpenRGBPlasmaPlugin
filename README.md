@@ -2,13 +2,13 @@
 
 # OpenRGB Plasma Integration
 
-> **Status: waiting on upstream fixes.** The plugin works, but a few fixes it relies on have not been released yet:
+> **Status:** works with Home Assistant 2026.11 and OpenRGB 1.1. Remaining upstream caveats:
 >
-> - **Home Assistant users:** openrgb-python 0.3.7 (used by HA's OpenRGB integration) fails to connect to any OpenRGB that has a plugin other than Effects loaded, including this one. Fix: [jath03/openrgb-python#95](https://github.com/jath03/openrgb-python/pull/95). Until it ships, loading this plugin cuts Home Assistant off.
-> - **Home Assistant on OpenRGB 1.0:** colour and mode changes from HA are often dropped. Reported as [OpenRGB #5924](https://gitlab.com/CalcProgrammer1/OpenRGB/-/issues/5924); client-side fix in [jath03/openrgb-python#96](https://github.com/jath03/openrgb-python/pull/96).
-> - **Plasma:** PowerDevil only notices the backlight after a restart (the tab has a button for it). Fixed in [plasma/powerdevil!691](https://invent.kde.org/plasma/powerdevil/-/merge_requests/691), merged for Plasma 6.8.
+> - **Home Assistant with the Effects plugin:** openrgb-python 0.3.8 fails to connect when the Effects plugin is loaded but is not OpenRGB's first plugin, because OpenRGB labels every plugin reply as plugin 0. Adding this plugin can change that order. Until the library is fixed, remove the Effects plugin if you use Home Assistant.
+> - **Plasma before 6.9:** PowerDevil only notices the backlight after a restart (the tab has a button for it). Fixed in [plasma/powerdevil!691](https://invent.kde.org/plasma/powerdevil/-/merge_requests/691).
+> - **Home Assistant before 2026.11** (openrgb-python 0.3.7) cannot connect while any plugin other than Effects is loaded. Fixed in openrgb-python 0.3.8 ([#95](https://github.com/jath03/openrgb-python/pull/95)).
 
-An OpenRGB 1.0 plugin that lets KDE Plasma control your RGB lights:
+An OpenRGB 1.0 / 1.1 plugin that lets KDE Plasma control your RGB lights:
 
 - **Brightness**: Plasma's Brightness & Color widget gets a Keyboard Backlight slider that dims every OpenRGB device. Keyboard brightness keys and Plasma's idle dimming work too.
 - **Accent color**: optionally, your lights follow Plasma's accent color.
@@ -16,7 +16,7 @@ An OpenRGB 1.0 plugin that lets KDE Plasma control your RGB lights:
 
 ## Requirements
 
-- OpenRGB 1.0 (plugin API 5), Linux
+- OpenRGB 1.0 or 1.1 (plugin API 5), Linux
 - A kernel with `uleds` (most distro kernels)
 - KDE Plasma for the accent color and the slider
 
@@ -39,7 +39,7 @@ Then restart OpenRGB: the plugin only creates the backlight when it loads or aft
 ## Known limitations
 
 - The Plasma slider does not move when something else changes brightness.
-- Before Plasma 6.8 (plasma/powerdevil!691), Plasma only notices the backlight after a PowerDevil restart; the tab offers a button for it.
+- Before Plasma 6.9 (plasma/powerdevil!691), Plasma only notices the backlight after a PowerDevil restart; the tab offers a button for it.
 - Idle dimming and screen-off turn the lights off and back on, like a laptop keyboard.
 
 ## Build
