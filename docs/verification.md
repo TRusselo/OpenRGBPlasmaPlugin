@@ -23,6 +23,21 @@ Device state was read back over the SDK with `scripts/sdk_check.py`; the person 
 
 Brightness ranges seen (spec §11): Razer modes 0..255, one Gigabyte mode 0..100.
 
+## Rollout on OpenRGB 1.1 (plan Task 13)
+
+Run 2026-11-11 on the same PC, now with the `openrgb` 1.1 package, Plasma 6.8.0 and Home Assistant 2026.11.0 (openrgb-python 0.3.8). The plugin was built from 07ba692 against the release_1.0 headers; the plugin-facing headers are unchanged in release_1.1. 139/139 tests pass.
+
+| Check | Result |
+|-------|--------|
+| Installed through the plugins folder, enabled in Settings → Plugins | Pass — "[PlasmaIntegration] loaded, 7 devices" |
+| PowerDevil sees the backlight | Pass after the tab's restart button — UPower reports 100 of 100 |
+| Plasma slider dims the devices | Pass |
+| Accent color | Pass |
+| Home Assistant stays connected with the plugin loaded | Pass — entry loaded, no errors, states update |
+| Last actor wins | Pass — keyboard set red from HA, slider dimmed it and HA showed the dimmed brightness |
+
+Found during the rollout, outside the plugin: openrgb-python 0.3.8 raises `StopIteration` while connecting when the Effects plugin is loaded but is not plugin 0, because OpenRGB 1.0 and 1.1 send every plugin-specific reply with device id 0. The Effects plugin was removed on this PC.
+
 ## Bugs found and fixed during the check
 
 - **Black devices stayed dark.** OpenRGB cannot read most hardware back, so plugged-in and rescanned devices start black. A device black since it appeared now takes the blend of the lit devices' colours (2182140).
