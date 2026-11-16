@@ -30,6 +30,10 @@ public:
     static QString ownPath(const QMap<QString, QString>& nativePaths, const QString& ledName);
     static std::optional<Write> plan(const QStringList& backlights, const QString& own, int sharedLevel, int sharedMaximum, int ownMaximum);
 
+signals:
+    // UPower lists our backlight, so PowerDevil can see it after a restart.
+    void backlightExported();
+
 private slots:
     void onDeviceAdded(const QDBusObjectPath& path);
 

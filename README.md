@@ -5,7 +5,7 @@
 > **Status:** works with Home Assistant 2026.11 and OpenRGB 1.1. Remaining upstream caveats:
 >
 > - **Home Assistant with the Effects plugin:** openrgb-python 0.3.8 fails to connect when the Effects plugin is loaded but is not OpenRGB's first plugin, because OpenRGB labels every plugin reply as plugin 0. Adding this plugin can change that order. Until the library is fixed, remove the Effects plugin if you use Home Assistant.
-> - **Plasma before 6.9:** PowerDevil only notices the backlight after a restart (the tab has a button for it). Fixed in [plasma/powerdevil!691](https://invent.kde.org/plasma/powerdevil/-/merge_requests/691).
+> - **Plasma before 6.9:** PowerDevil only notices the backlight after a restart. The plugin now does that restart automatically, once each time it creates the backlight, and the tab still has a button for it. Fixed in [plasma/powerdevil!691](https://invent.kde.org/plasma/powerdevil/-/merge_requests/691), which is merged to master but not to the 6.8 branch.
 > - **Home Assistant before 2026.11** (openrgb-python 0.3.7) cannot connect while any plugin other than Effects is loaded. Fixed in openrgb-python 0.3.8 ([#95](https://github.com/jath03/openrgb-python/pull/95)).
 
 An OpenRGB 1.0 / 1.1 plugin that lets KDE Plasma control your RGB lights:
@@ -39,7 +39,7 @@ Then restart OpenRGB: the plugin only creates the backlight when it loads or aft
 ## Known limitations
 
 - The Plasma slider does not move when something else changes brightness.
-- Before Plasma 6.9 (plasma/powerdevil!691), Plasma only notices the backlight after a PowerDevil restart; the tab offers a button for it.
+- Until plasma/powerdevil!691 ships (expected in Plasma 6.9; it is not in 6.8.x), Plasma only notices the backlight after a PowerDevil restart, once per login and again after each OpenRGB restart. The plugin restarts PowerDevil automatically when it missed the backlight, and the tab offers a button if that did not help.
 - Idle dimming and screen-off turn the lights off and back on, like a laptop keyboard.
 
 ## Build
