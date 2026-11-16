@@ -103,6 +103,11 @@ void PlasmaIntegrationPlugin::Load(OpenRGBPluginAPIInterface* plugin_api)
     connect(tab, &SettingsTab::restartRequested, probe, &PowerDevilProbe::restartPowerDevil);
     connect(tab, &SettingsTab::shown, this, [this] { probe->check(backlight->status() == UledsBacklight::Status::Ready); });
     connect(probe, &PowerDevilProbe::restartNeededChanged, this, [this](bool) { updateStatus(); });
+    // PowerDevil before Plasma 6.9 only looks for keyboard backlights at startup, and OpenRGB starts too late at login.
+    // Give a fixed PowerDevil time to react to UPower itself before deciding it missed the backlight.
+    connect(levelSync, &UPowerLevelSync::backlightExported, this, [this] {
+        QTimer::singleShot(3000, this, [this] { probe->restartIfMissed(backlight->status() == UledsBacklight::Status::Ready); });
+    });
     connect(tab, &SettingsTab::accentToggled, this, [this](bool enabled) {
         settings.accentEnabled = enabled;
         saveSettings();
@@ -261,8 +266,13 @@ void PlasmaIntegrationPlugin::onControllerChanged(void* controller)
 
 void PlasmaIntegrationPlugin::openBacklight()
 {
+    const bool wasOpen = backlight->status() == UledsBacklight::Status::Ready;
     if(SystemSetup::detect(SystemSetup::systemPaths()) == SystemSetup::State::Ready && backlight->open() == UledsBacklight::Status::Ready)
     {
+        if(!wasOpen)
+        {
+            probe->allowAutomaticRestart();
+        }
         levelSync->start();
     }
     updateStatus();

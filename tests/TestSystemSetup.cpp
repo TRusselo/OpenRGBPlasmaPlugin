@@ -91,4 +91,7 @@ void TestSystemSetup::powerDevilRestartRule()
     QCOMPARE(PowerDevilProbe::needsRestart(true, true, false, 0), true);
     QCOMPARE(PowerDevilProbe::needsRestart(false, true, false, 0), false);
     QCOMPARE(PowerDevilProbe::needsRestart(true, false, false, 0), false);
+    QCOMPARE(PowerDevilProbe::shouldRestartAutomatically(true, false), true);
+    QCOMPARE(PowerDevilProbe::shouldRestartAutomatically(true, true), false);
+    QCOMPARE(PowerDevilProbe::shouldRestartAutomatically(false, false), false);
 }

@@ -110,6 +110,7 @@ void UPowerLevelSync::trySync()
     {
         return;
     }
+    emit backlightExported();
     QDBusInterface target(Service, write->path, BacklightInterface, QDBusConnection::systemBus());
     target.setTimeout(CallTimeoutMs);
     target.call(QStringLiteral("SetBrightness"), write->value);

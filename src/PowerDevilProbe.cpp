@@ -28,6 +28,11 @@ bool PowerDevilProbe::needsRestart(bool backlightExists, bool powerDevilRunning,
     return backlightExists && powerDevilRunning && (!supported || maxBrightness <= 0);
 }
 
+bool PowerDevilProbe::shouldRestartAutomatically(bool restartNeeded, bool alreadyRestarted)
+{
+    return restartNeeded && !alreadyRestarted;
+}
+
 bool PowerDevilProbe::restartNeeded() const
 {
     return needed;
@@ -64,4 +69,19 @@ void PowerDevilProbe::restartPowerDevil()
 {
     QProcess::startDetached(QStringLiteral("systemctl"), {QStringLiteral("--user"), QStringLiteral("restart"), QStringLiteral("plasma-powerdevil")});
     QTimer::singleShot(5000, this, [this] { check(lastBacklightExists); });
+}
+
+void PowerDevilProbe::restartIfMissed(bool backlightExists)
+{
+    check(backlightExists);
+    if(shouldRestartAutomatically(needed, restartedAutomatically))
+    {
+        restartedAutomatically = true;
+        restartPowerDevil();
+    }
+}
+
+void PowerDevilProbe::allowAutomaticRestart()
+{
+    restartedAutomatically = false;
 }
